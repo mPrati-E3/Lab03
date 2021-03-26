@@ -25,7 +25,7 @@ public class FXMLController {
     private Label lblChoose;
 
     @FXML
-    private ChoiceBox<?> dropLanguage;
+    private ChoiceBox<String> dropLanguage;
 
     @FXML
     private TextArea txtInizio;
@@ -47,12 +47,38 @@ public class FXMLController {
 
     @FXML
     void doCheck(ActionEvent event) {
+    	
+    	txtFine.clear();
+    	
+    	Long T = System.nanoTime();
+    	String S = model.ControllaTesto(txtInizio.getText(),dropLanguage.getValue());
+    	T=System.nanoTime() - T;
+    	
+    	txtFine.appendText(S);
+    	if (dropLanguage.getValue().equals("Italiano")) {
+    		lblTempo.setText("Tempo di controllo ortografico: "+T);
+    	} else {
+    		lblTempo.setText("Check time: "+T);
+    	}
 
     }
 
     @FXML
     void doClear(ActionEvent event) {
-
+    	
+    	Long T1 = System.nanoTime();
+    	txtInizio.clear();
+    	T1=System.nanoTime() - T1;
+    	
+    	Long T2=System.nanoTime();
+    	txtFine.clear();
+    	T2=System.nanoTime() - T2;
+    	
+    	if (dropLanguage.getValue().equals("Italiano")) {
+    		lblTempo.setText("Tempo pulizia prima text area: "+T1+" --- Tempo pulizia seconda text area: "+T2);
+    	} else {
+    		lblTempo.setText("Clean time first text area: "+T1+" --- Clean time second text area: "+T2);
+    	}
     }
 
     @FXML
@@ -66,6 +92,8 @@ public class FXMLController {
         assert lblTempo != null : "fx:id=\"lblTempo\" was not injected: check your FXML file 'Scene.fxml'.";
         assert btnClear != null : "fx:id=\"btnClear\" was not injected: check your FXML file 'Scene.fxml'.";
 
+        dropLanguage.getItems().add("English");
+        dropLanguage.getItems().add("Italiano");
     }
     
     public void setModel(Model m) {
