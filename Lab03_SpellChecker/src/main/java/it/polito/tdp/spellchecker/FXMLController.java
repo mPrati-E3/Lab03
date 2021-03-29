@@ -94,6 +94,7 @@ public class FXMLController {
 
         dropLanguage.getItems().add("English");
         dropLanguage.getItems().add("Italiano");
+        dropLanguage.setValue("English");
     }
     
     public void setModel(Model m) {
