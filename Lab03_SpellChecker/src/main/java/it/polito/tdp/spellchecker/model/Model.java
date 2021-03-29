@@ -3,24 +3,39 @@ package it.polito.tdp.spellchecker.model;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Model {
 	
-	Set<String> Dictionary = new LinkedHashSet<String>();
+	private List<String> Dictionary = new ArrayList<String>();
+	private String Linguaggio = "English";
 	
 	private boolean LoadFromFile (String Lingua) {
 		
-		String FileName;
-		final String PATH = "";
+		//Se il mio dizionario non è vuoto e ho già precedentemente impostato la lingua corretta,
+		//è inutile che ricarico tutto quanto dal file
+		if (this.Dictionary!=null && this.Linguaggio.equals(Lingua)) {
+			return true;
+		}
 		
+		//resetto il dizionario ed il linguaggio
+		this.Dictionary=new ArrayList<String>();
+		this.Linguaggio=Lingua;
+		
+		//variabile per il path del file
+		final String PATH = "src\\main\\resources\\";
+		
+		//scelgo il nome del file da caricare a seconda del linguaggio scelto
+		String FileName;
 		if (Lingua.equals("Italiano")) {
 			FileName=PATH+"Italian.txt";
 		} else {
 			FileName=PATH+"English.txt";
 		}
 		
+		//provo a caricare i dati dal file
 		try {
 			
 			FileReader FR = new FileReader(FileName);
@@ -28,8 +43,7 @@ public class Model {
 			String WORD = BR.readLine();
 			
 			while (WORD !=null) {
-				
-				System.out.println(WORD);
+	
 				this.Dictionary.add(WORD);
 				
 				WORD = BR.readLine();
@@ -37,28 +51,71 @@ public class Model {
 			
 			BR.close();
 			
+			Collections.sort(this.Dictionary);
+			
 		} catch (IOException e) {
 			return false;	
 		}
+		
 		return true;
 	}
+	
 
-	public String ControllaTesto(String text, String Lingua) {
+	public List<RichWord> ControllaTesto(List<String> text, String Lingua) {
 		
-		String S = "";
+		List<RichWord> LR = new ArrayList<RichWord>();
+		RichWord BOX = new RichWord();
 		
+		//se il file è caricato correttamente...
 		if (this.LoadFromFile(Lingua)) {
-			System.out.println(this.Dictionary);
 			
-			return S;	
+			//per ogni parola (S) nel testo di input (text) faccio la ricerca dicotomica nel dizionario
+			//in modo da capire se la parola è o meno corretta
+			for (String S : text) {
+				BOX = new RichWord(S);
+
+				if (binarySearch(S.toLowerCase())) {
+					BOX.setCorretta(true);
+				} else {
+					BOX.setCorretta(false);
+				}
+				
+				LR.add(BOX);
+			} 
+	
+		//...altrimenti riporto un errore
 		} else {
 			if (Lingua.equals("Italiano")) {
-				return "Il caricamento del file non è andato a buon fine! \n";
+				BOX = new RichWord("Il caricamento del file non è andato a buon fine! \n");
 			} else {
-				return "Failed to read file! \n";
+				BOX = new RichWord("Failed to read file! \n");
 			}
+			LR.add(BOX);
 		}
+		
+		return LR;
 	}
+
+	//ricerca dicotomica
+	private boolean binarySearch(String temp) {
+		int inizio=0;
+		int fine = this.Dictionary.size();
+		
+		while (inizio!=fine) {
+			int medio = inizio+(fine-inizio)/2;
+			if (temp.compareToIgnoreCase(this.Dictionary.get(medio))==0) {
+				return true;
+			} else if (temp.compareToIgnoreCase(this.Dictionary.get(medio))>0) {
+				inizio=medio+1;
+			} else {
+				fine = medio;
+			}
+			
+		}
+		
+		return false;
+	}
+
 
 	@Override
 	public int hashCode() {

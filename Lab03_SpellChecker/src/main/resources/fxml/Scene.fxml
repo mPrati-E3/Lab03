@@ -48,7 +48,7 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </TextArea>
-            <Label fx:id="lblErrori">
+            <Label fx:id="lblErrori" textFill="#da0909">
                <VBox.margin>
                   <Insets top="5.0" />
                </VBox.margin>

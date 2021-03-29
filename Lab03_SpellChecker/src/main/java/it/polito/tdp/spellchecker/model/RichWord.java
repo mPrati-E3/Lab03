@@ -26,6 +26,11 @@ public class RichWord implements java.io.Serializable {
 		this.corretta = false;
 	}
 	
+	public RichWord(String T) {
+		this.parola = T;
+		this.corretta = false;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

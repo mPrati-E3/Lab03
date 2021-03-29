@@ -1,9 +1,13 @@
 package it.polito.tdp.spellchecker;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
 import it.polito.tdp.spellchecker.model.Model;
+import it.polito.tdp.spellchecker.model.RichWord;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -44,21 +48,56 @@ public class FXMLController {
 
     @FXML
     private Button btnClear;
+    
+    //converto il testo iniziale in una lista di stringhe eliminando i simboli strani
+    //e dividendo le parole per spazio utilizzando StringTokenizer
+    private List<String> ConvertiTesto (String text){
+    	
+    	List<String> Convertito = new ArrayList<String>();
+    	
+    	text = text.toLowerCase();
+    	text.replaceAll("\n", " ");
+    	text.replaceAll("[.,\\/#!$%\\^&\\*;:{}=\\-_'()\\[\\]\"]", " ");
+    	
+    	StringTokenizer ST = new StringTokenizer(text, " ");  	
+    	while (ST.hasMoreTokens()) {
+    		Convertito.add(ST.nextToken());
+    	}
+    	
+    	return Convertito;
+    }
 
     @FXML
     void doCheck(ActionEvent event) {
     	
+    	//controllo che la textArea iniziale non sia vuota
+    	if (txtInizio.getText().equals("")) {
+    		txtFine.appendText("Il testo iniziale non può essere vuoto! \n");
+    		return;
+    	}
+    	
     	txtFine.clear();
+    	int Errori = 0;
     	
     	Long T = System.nanoTime();
-    	String S = model.ControllaTesto(txtInizio.getText(),dropLanguage.getValue());
+    	List<RichWord> S = model.ControllaTesto(ConvertiTesto(txtInizio.getText()),dropLanguage.getValue());
     	T=System.nanoTime() - T;
     	
-    	txtFine.appendText(S);
+    	for (int i=0; i<S.size(); i++) {
+    		if (!S.get(i).isCorretta()) {
+        		txtFine.appendText("> "+S.get(i).getParola()+"\n");
+    			Errori++;
+    		} else {
+    			txtFine.appendText(S.get(i).getParola()+"\n");
+    		}
+    	}
+    	
     	if (dropLanguage.getValue().equals("Italiano")) {
-    		lblTempo.setText("Tempo di controllo ortografico: "+T);
+    		lblTempo.setText("Tempo di controllo ortografico: "+T/10e6+" ms");
+    		lblErrori.setText("Errori: "+Errori);
     	} else {
-    		lblTempo.setText("Check time: "+T);
+    		lblTempo.setText("Check time: "+T/10e6+" ms");
+    		lblErrori.setText("Errors: "+Errori);
     	}
 
     }
@@ -75,9 +114,9 @@ public class FXMLController {
     	T2=System.nanoTime() - T2;
     	
     	if (dropLanguage.getValue().equals("Italiano")) {
-    		lblTempo.setText("Tempo pulizia prima text area: "+T1+" --- Tempo pulizia seconda text area: "+T2);
+    		lblTempo.setText("Tempo pulizia prima text area: "+T1/10e6+" ms --- Tempo pulizia seconda text area: "+T2/10e6+" ms");
     	} else {
-    		lblTempo.setText("Clean time first text area: "+T1+" --- Clean time second text area: "+T2);
+    		lblTempo.setText("Clean time first text area: "+T1/10e6+" ms --- Clean time second text area: "+T2/10e6+" ms");
     	}
     }
 
